@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "allowJs": true,
+        "sourceMap": true,
+        "baseUrl": "src",
+        "outDir": "dist",
+        "strict": true,
+        "lib": [
+            "esnext"
+        ],
+        "esModuleInterop": true,
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

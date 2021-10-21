@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  // always private
+  password  String
+  email     String @default(" ")
+  // always public
+  account   String @id @unique
+  username  String
+  bio       String @default(" ")
+  avatarUrl String @default(" ")
+
+  select           String[] // public list
+  // optional public
+  follower         User[]   @relation("follower_following", references: [account])
+  following        User[]   @relation("follower_following", references: [account])
+  followReqToOther User[]   @relation("followReq", references: [account])
+  followReqToMe    User[]   @relation("followReq", references: [account])
+  numOfFollowing   Int      @default(0)
+  numOfFollower    Int      @default(0)
+  post             Post[]
+
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [account], references: [account])
+  public    Boolean   @default(true)
+  account   String
+  photo     String[]
+  caption   String    @default(" ")
+  hashtag   Hashtag[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Hashtag {
+  hashtag String @id @unique
+  post    Post[]
+}
