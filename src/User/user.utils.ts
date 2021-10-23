@@ -1,4 +1,4 @@
-import { JWTPayload, jwtVerify } from 'jose/jwt/verify';
+import { JWTPayload, jwtVerify } from "jose";
 import client from "prismaClient";
 import privateKey from "privateKey";
 import { Resolver } from "types";

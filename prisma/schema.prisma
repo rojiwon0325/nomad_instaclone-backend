@@ -28,23 +28,24 @@ model User {
   followReqToMe    User[]   @relation("followReq", references: [account])
   numOfFollowing   Int      @default(0)
   numOfFollower    Int      @default(0)
-  post             Post[]
+  numOfPost        Int      @default(0)
+  post             Post[]   @relation("user_post")
 
 }
 
 model Post {
   id        Int       @id @default(autoincrement())
-  user      User      @relation(fields: [account], references: [account])
+  user      User      @relation("user_post", fields: [account], references: [account])
   public    Boolean   @default(true)
   account   String
   photo     String[]
   caption   String    @default(" ")
-  hashtag   Hashtag[]
+  hashtag   Hashtag[] @relation("post_hashtag")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
 model Hashtag {
   hashtag String @id @unique
-  post    Post[]
+  post    Post[] @relation("post_hashtag")
 }

@@ -14,7 +14,7 @@ export default gql`
         isFollowing:    Boolean!
         isMe:           Boolean!
         
-        post:           [Post]
+        numOfPost:      Int
         numOfFollower:  Int
         numOfFollowing: Int
     }

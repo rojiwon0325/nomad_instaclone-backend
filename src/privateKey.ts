@@ -1,4 +1,4 @@
-import { importPKCS8 } from 'jose/key/import'
+import { importPKCS8 } from 'jose'
 
 const algorithm = 'ES256'
 

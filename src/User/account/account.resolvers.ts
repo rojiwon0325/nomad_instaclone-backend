@@ -1,7 +1,7 @@
 import { Resolvers, ResultToken } from "types";
 import bcrypt from "bcrypt";
-import { SignJWT } from 'jose/jwt/sign'
 import privateKey from "privateKey";
+import { SignJWT } from "jose";
 
 interface LoginToken extends ResultToken {
     token?: string;
@@ -15,7 +15,7 @@ interface Account_args {
 
 const resolvers: Resolvers = {
     Mutation: {
-        createAccount: async (_, { username, account, password }: Account_args, { client }): Promise<ResultToken> => {
+        newAccount: async (_, { username, account, password }: Account_args, { client }): Promise<ResultToken> => {
             try {
                 const user = await client.user.findUnique({ where: { account } });
                 if (user) {

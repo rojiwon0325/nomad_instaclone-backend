@@ -1,5 +1,3 @@
-import { Post } from "Post/interface";
-
 export interface User {
     username: string
     account: string
@@ -8,7 +6,6 @@ export interface User {
 
 export interface Profile extends User {
     bio: string
-    post?: Post[]
     numOfFollower?: number
     numOfFollowing?: number
 }

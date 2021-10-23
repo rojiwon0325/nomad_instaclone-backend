@@ -1,4 +1,11 @@
 export interface Post {
+    id: number
     account: string
-    text: string
+    caption: string
+}
+
+export interface PostResult {
+    ok: boolean
+    error?: string
+    post?: Post
 }

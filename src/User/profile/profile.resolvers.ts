@@ -1,25 +1,16 @@
 import bcrypt from "bcrypt";
-import { createWriteStream } from "fs";
 import { FileUpload } from "graphql-upload";
+import { uploadToS3 } from "Shared/shared.utils";
 import { Resolver, Resolvers, ResultToken } from "types";
 import { Profile, User } from "User/interface";
 import { ifLogin } from "User/user.utils";
-
-const fn = async (avatar: FileUpload) => {
-    const { filename, createReadStream } = await avatar; // await는 함수를 불러오는데에 필요
-    const readStream = createReadStream();
-    const newFilename = `${Date.now()}-${filename}`;
-    const writeStream = createWriteStream(process.cwd() + "/src/uploads/" + newFilename);
-    readStream.pipe(writeStream);
-    return `http://localhost:4000/static/${newFilename}`
-}
 
 const editProfile: Resolver = async (_, { username, password, avatar, bio }: { username?: string, avatar?: FileUpload, bio?: string, password: string }, { client, loggedInUser }): Promise<ResultToken> => {
     try {
         const myPassword = (await client.user.findUnique({ where: { account: loggedInUser }, select: { password: true } }))?.password;
         const auth = myPassword ? await bcrypt.compare(password, myPassword) : false;
         if (auth) {
-            await client.user.update({ where: { account: loggedInUser }, data: { username, bio, ...(avatar && { avatarUrl: await fn(avatar) }) } });
+            await client.user.update({ where: { account: loggedInUser }, data: { username, bio, ...(avatar && { avatarUrl: await uploadToS3(avatar, loggedInUser, "avatar") }) } });
             return { ok: true };
         }
     } catch { }
@@ -48,7 +39,7 @@ const resolvers: Resolvers = {
                     avatarUrl: user.avatarUrl,
                     bio: user.bio,
                     ...(follow && { numOfFollowing: user.numOfFollowing, numOfFollower: user.numOfFollower }),
-                    ...(post && { post: await prisma.post({ where: { account }, take: 24, select: { account: true, text: true }, orderBy: { createdAt: "asc" } }) }), //수정 필요
+                    ...(post && { numOfPost: user.numOfPost })
                 };
             } catch { }
             return null;
