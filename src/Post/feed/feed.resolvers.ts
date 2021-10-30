@@ -1,22 +1,42 @@
-import { Resolvers } from "types";
+import { Post } from "Post/interface";
+import { Resolvers, ResultToken } from "types";
 
 const resolvers: Resolvers = {
     Query: {
-        seeFeed: async (_, { account, offset = 0 }: { account: string, offset: number }, { client, loggedInUser }) => {
+        // User가 없거나 private이면 null 그 외에는 array반환
+        seeFeed: async (_, { account, offset = 0 }: { account: string, offset: number }, { client, loggedInUser }): Promise<Post[] | null> => {
             try {
-                const user = await client.user.findUnique({ where: { account } });
-                if (user === null) return { ok: false, error: "User not Found" };
-                const access = account === loggedInUser || user.select.find(elem => elem === "post");
-                if (access === undefined) return { ok: false, error: "This feed is private" };
-                const feed = await client.post.findMany({
-                    take: 25,
-                    skip: offset > 0 ? offset * 25 : 0,
-                    where: { account },
-                    orderBy: { createdAt: "asc" }
-                });
-                return { ok: true, feed };
+                const { post } = await client.user.findFirst({
+                    where: {
+                        account,
+                        OR: [
+                            { isPublic: true },
+                            { account: loggedInUser },
+                            { follower: { some: { account: loggedInUser } } },
+                        ]
+                    },
+                    select: {
+                        post: {
+                            take: 25,
+                            skip: offset,
+                            orderBy: { createdAt: "desc" },
+                            select: {
+                                id: true,
+                                photo: true,
+                                _count: {
+                                    select: {
+                                        like: true,
+                                        comment: true,
+                                        reComment: true,
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }) ?? { post: null };
+                return post;
             } catch { }
-            return { ok: false, error: "Fail to load feed" };
+            return []; // error시 빈 배열 반환
         }
     }
 };

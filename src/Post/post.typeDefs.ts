@@ -1,20 +1,31 @@
 import { gql } from "apollo-server-express";
 
 export default gql`
+    type Post_count{
+        like: Int!
+        comment: Int!
+        reComment: Int!
+    }
+    type Post_detail{
+        caption:    String!
+        account:    String!
+        createdAt:  String!
+
+        isMine:     Boolean!
+        isLiked:    Boolean!
+    }
     type Post{
         id:         Int!
-        account:    String!
         photo:      [String]!
-        caption:    String!
+        _count: Post_count
+        detail: Post_detail
     }
-    type PostResult{
-        ok: Boolean!
-        error: String
-        post: Post
+    type Query{
+        seePost(id:Int offset:Int): [Post]
     }
     type Mutation{
-        newPost(photo:[Upload] caption:String!): PostResult!
-        editPost(id:Int! caption:String!): PostResult!
-        deletePost(id:Int!): PostResult!
+        newPost(photo:[Upload!]! caption:String!): ResultToken!
+        editPost(id:Int! caption:String!): ResultToken!
+        deletePost(id:Int!): ResultToken!
     }
 `;

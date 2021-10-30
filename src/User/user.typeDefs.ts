@@ -1,21 +1,27 @@
 import { gql } from "apollo-server-express";
 
 export default gql`
+    type Profile_count{
+        post:       Int!
+        follower:   Int!
+        following:  Int!        
+    }
+    type Profile{
+        isPublic:   Boolean!
+        bio:        String!
+        
+        _count:     Profile_count
+    }
     type User{
         username:       String!
         account:        String!
         avatarUrl:      String!
+
+        isMe:           Boolean
+        isFollowing:    Boolean
+        profile:        Profile
     }
-    type Profile{
-        account:        String!
-        username:       String!
-        bio:            String!
-        avatarUrl:      String!
-        isFollowing:    Boolean!
-        isMe:           Boolean!
-        
-        numOfPost:      Int
-        numOfFollower:  Int
-        numOfFollowing: Int
+    type Query{
+        searchUsers(key:String!): [User]!
     }
 `;

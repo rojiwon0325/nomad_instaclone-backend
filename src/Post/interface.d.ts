@@ -1,11 +1,48 @@
+
 export interface Post {
     id: number
-    account: string
-    caption: string
+    photo: string[]
+    _count: {
+        like: number
+        comment: number
+        reComment: number
+    } | null
+    detail?: {
+        account: string
+        caption: string
+        createdAt: Date
+
+        isMine: boolean
+        isLiked: boolean
+    }
 }
 
-export interface PostResult {
-    ok: boolean
-    error?: string
-    post?: Post
+export interface Hashtag {
+    name: string
+    _count: {
+        post: number
+    } | null
+}
+
+export interface Comment {
+    id: number,
+    text: string,
+    account: string,
+    createdAt: Date,
+
+    _count: {
+        reComment: number,
+    } | null,
+
+    isMine: boolean
+}
+
+export interface ReComment {
+    id: number,
+    text: string,
+    rootId: number,
+    account: string,
+    createdAt: Date,
+
+    isMine: boolean
 }

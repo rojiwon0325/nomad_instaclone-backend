@@ -1,15 +1,19 @@
 import { Resolvers } from "types";
+import { User } from "User/interface";
 
 const resolvers: Resolvers = {
-    Profile: {
-        isMe: ({ account }: { account: string }, _, { loggedInUser }) => account === loggedInUser,
-        isFollowing: async ({ account }, _, { client, loggedInUser }) => {
-            const exist = loggedInUser
-                ? await client.user.count({ where: { account: loggedInUser, following: { every: { account } } } })
-                : 0;
-            return 1 === exist
-        },
+    Query: {
+        searchUsers: async (_, { key }: { key: string }, { client }): Promise<User[]> => {
+            try {
+                return client.user.findMany({
+                    where: { OR: [{ username: { contains: key } }, { account: { contains: key } }] },
+                    take: 50,
+                    select: { username: true, account: true, avatarUrl: true }
+                });
+            } catch { }
+            return [];
 
+        },
     }
 };
 

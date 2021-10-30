@@ -1,17 +1,14 @@
 import { gql } from "apollo-server-express";
 
 export default gql`
-    type FollowResult{
-        ok: Boolean!
-        error: String
-        list: [User]
-    }
     type Query{
-        seeFollow(account:String! type:String! page:Int): FollowResult!
+        seeFollower(account:String! offset:Int): [User]!
+        seeFollowing(account:String! offset:Int): [User]!
     }
     type Mutation{
         requestFollow(account:String!): ResultToken!
         responseFollow(account:String! accept:Boolean!): ResultToken!
-        deleteFollow(account:String! type:String!): ResultToken!
+        deleteFollower(account:String!): ResultToken!
+        deleteFollowing(account:String!): ResultToken!
     }
 `;

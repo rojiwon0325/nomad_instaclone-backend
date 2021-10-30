@@ -12,40 +12,73 @@ generator client {
 
 model User {
   // always private
+  email     String  @default(" ")
   password  String
-  email     String @default(" ")
   // always public
-  account   String @id @unique
+  account   String  @id @unique
+  bio       String  @default(" ")
   username  String
-  bio       String @default(" ")
-  avatarUrl String @default(" ")
+  isPublic  Boolean @default(true)
+  avatarUrl String  @default(" ")
 
-  select           String[] // public list
   // optional public
-  follower         User[]   @relation("follower_following", references: [account])
-  following        User[]   @relation("follower_following", references: [account])
-  followReqToOther User[]   @relation("followReq", references: [account])
-  followReqToMe    User[]   @relation("followReq", references: [account])
-  numOfFollowing   Int      @default(0)
-  numOfFollower    Int      @default(0)
-  numOfPost        Int      @default(0)
-  post             Post[]   @relation("user_post")
+  post             Post[] @relation("user_post")
+  follower         User[] @relation("follower_following", references: [account])
+  following        User[] @relation("follower_following", references: [account])
+  followReqToMe    User[] @relation("followReq", references: [account])
+  followReqToOther User[] @relation("followReq", references: [account])
 
+  likePost  Post[]      @relation("likePost", references: [id])
+  ////
+  comment   Comment[]
+  reComment ReComment[]
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
-  user      User      @relation("user_post", fields: [account], references: [account])
-  public    Boolean   @default(true)
-  account   String
-  photo     String[]
-  caption   String    @default(" ")
-  hashtag   Hashtag[] @relation("post_hashtag")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id      Int      @id @default(autoincrement())
+  user    User     @relation("user_post", fields: [account], references: [account])
+  like    User[]   @relation("likePost", references: [account])
+  photo   String[]
+  public  Boolean  @default(true)
+  account String
+  caption String   @default(" ")
+
+  hashtag   Hashtag[]   @relation("hashtag", references: [name])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  ////
+  comment   Comment[]
+  reComment ReComment[]
 }
 
 model Hashtag {
-  hashtag String @id @unique
-  post    Post[] @relation("post_hashtag")
+  name String @id
+  post Post[] @relation("hashtag", references: [id])
+}
+
+model Comment {
+  id        Int         @id @default(autoincrement())
+  text      String      @default(" ")
+  post      Post        @relation(fields: [postId], references: [id])
+  user      User        @relation(fields: [account], references: [account])
+  postId    Int
+  account   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  //
+  reComment ReComment[]
+}
+
+model ReComment {
+  id        Int      @id @default(autoincrement())
+  text      String   @default(" ")
+  post      Post     @relation(fields: [postId], references: [id])
+  root      Comment  @relation(fields: [rootId], references: [id])
+  user      User     @relation(fields: [account], references: [account])
+  postId    Int
+  rootId    Int
+  account   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  //
 }

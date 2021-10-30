@@ -1,11 +1,20 @@
-export interface User {
-    username: string
-    account: string
-    avatarUrl: string
-}
 
-export interface Profile extends User {
-    bio: string
-    numOfFollower?: number
-    numOfFollowing?: number
+export interface User {
+    account: string
+    username: string
+    avatarUrl: string
+
+    isMe?: boolean
+    isFollowing?: boolean
+
+    profile?: {
+        bio: string
+        isPublic: boolean
+
+        _count: {
+            post: number
+            follower: number
+            following: number
+        } | null
+    }
 }

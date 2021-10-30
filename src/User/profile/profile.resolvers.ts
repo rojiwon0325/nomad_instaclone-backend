@@ -1,17 +1,34 @@
 import bcrypt from "bcrypt";
 import { FileUpload } from "graphql-upload";
-import { uploadToS3 } from "Shared/shared.utils";
+import { deleteToS3, uploadToS3 } from "Shared/shared.utils";
 import { Resolver, Resolvers, ResultToken } from "types";
-import { Profile, User } from "User/interface";
+import { User } from "User/interface";
 import { ifLogin } from "User/user.utils";
 
-const editProfile: Resolver = async (_, { username, password, avatar, bio }: { username?: string, avatar?: FileUpload, bio?: string, password: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const editProfile: Resolver = async (_, { username, password, avatar, bio, isPublic }: { username?: string, avatar?: FileUpload, bio?: string, password: string, isPublic?: boolean }, { client, loggedInUser }): Promise<ResultToken & { data?: { username: string, avatarUrl: string, isPublic: boolean, bio: string } }> => {
     try {
-        const myPassword = (await client.user.findUnique({ where: { account: loggedInUser }, select: { password: true } }))?.password;
+        const { password: myPassword, avatarUrl } = await client.user.findUnique({ where: { account: loggedInUser }, select: { password: true, avatarUrl: true } }) ?? { mypassword: "", avatarUrl: "" };
         const auth = myPassword ? await bcrypt.compare(password, myPassword) : false;
         if (auth) {
-            await client.user.update({ where: { account: loggedInUser }, data: { username, bio, ...(avatar && { avatarUrl: await uploadToS3(avatar, loggedInUser, "avatar") }) } });
-            return { ok: true };
+            if (avatar) {
+                deleteToS3(avatarUrl);
+            }
+            const data = await client.user.update({
+                where: { account: loggedInUser },
+                data: {
+                    username,
+                    bio,
+                    isPublic,
+                    ...(avatar && { avatarUrl: await uploadToS3(avatar, loggedInUser, "avatar") })
+                },
+                select: {
+                    username: true,
+                    avatarUrl: true,
+                    isPublic: true,
+                    bio: true,
+                }
+            });
+            return { ok: true, data };
         }
     } catch { }
     return { ok: false, error: "Fail to update profile." }
@@ -19,28 +36,35 @@ const editProfile: Resolver = async (_, { username, password, avatar, bio }: { u
 
 const resolvers: Resolvers = {
     Query: {
-        searchUsers: async (_, { key }: { key: string }, { client }): Promise<User[]> => client.user.findMany({
-            where: { OR: [{ username: key }, { account: key }] },
-            take: 50,
-            select: { username: true, account: true, avatarUrl: true }
-        }),
-        seeProfile: async (_, { account }: { account: string }, { client, loggedInUser }): Promise<Profile | null> => {
+        seeProfile: async (_, { account }: { account: string }, { client, loggedInUser }): Promise<User | null> => {
             try {
-                const prisma = client.user.findUnique({ where: { account } });
-                const user = await prisma;
-                if (user === null) {
-                    return null;
+                const prisma = client.user.findUnique({
+                    where: { account },
+                    select: {
+                        account: true,
+                        username: true,
+                        avatarUrl: true,
+
+                        bio: true,
+                        isPublic: true,
+
+                        _count: {
+                            select: {
+                                post: true,
+                                follower: true,
+                                following: true,
+                            }
+                        }
+                    }
+                });
+                const [user, follower] = await Promise.all([prisma, prisma.follower({ where: { account: loggedInUser } })]);
+                if (user === null) return null;
+                else {
+                    const { account, username, avatarUrl, bio, isPublic, _count } = user;
+                    const isFollowing = follower.length > 0;
+                    const isMe = account === loggedInUser;
+                    return { account, username, avatarUrl, isMe, isFollowing, profile: { bio, isPublic, _count } };
                 }
-                const follow = (account === loggedInUser) || user.select.find(elem => elem === "follow");
-                const post = (account === loggedInUser) || user.select.find(elem => elem === "post");
-                return {
-                    username: user.username,
-                    account: user.account,
-                    avatarUrl: user.avatarUrl,
-                    bio: user.bio,
-                    ...(follow && { numOfFollowing: user.numOfFollowing, numOfFollower: user.numOfFollower }),
-                    ...(post && { numOfPost: user.numOfPost })
-                };
             } catch { }
             return null;
         }
