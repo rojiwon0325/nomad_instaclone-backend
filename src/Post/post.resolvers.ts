@@ -4,14 +4,15 @@ import { FileUpload } from "graphql-upload";
 import { deleteToS3, uploadToS3 } from "Shared/shared.utils";
 import { extractTags } from "Post/post.utils";
 import { Post } from "Post/interface";
+import client from "prismaClient";
 
-const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], caption: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], caption: string }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
-        const photos = await Promise.all(photo.map(elem => uploadToS3(elem, loggedInUser, `post/${loggedInUser}`)));
+        const photos = await Promise.all(photo.map(elem => uploadToS3(elem, account, `post/${account}`)));
         const hashtags = extractTags(caption);
         await client.post.create({
             data: {
-                user: { connect: { account: loggedInUser } },
+                user: { connect: { account } },
                 photo: photos,
                 caption,
                 hashtag: {
@@ -23,10 +24,10 @@ const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], c
     } catch { }
     return { ok: false, error: "Fail to new post" };
 };
-const editPost: Resolver = async (_, { id, caption }: { id: number, caption: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const editPost: Resolver = async (_, { id, caption }: { id: number, caption: string }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
         const post = await client.post.findFirst({
-            where: { id, account: loggedInUser },
+            where: { id, account },
             select: {
                 hashtag: true
             }
@@ -48,9 +49,9 @@ const editPost: Resolver = async (_, { id, caption }: { id: number, caption: str
     } catch { }
     return { ok: false, error: "Fail to edit post" };
 };
-const deletePost: Resolver = async (_, { id }: { id: number }, { client, loggedInUser }): Promise<ResultToken> => {
+const deletePost: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
-        const post = await client.post.findFirst({ where: { id, account: loggedInUser }, select: { photo: true } });
+        const post = await client.post.findFirst({ where: { id, account }, select: { photo: true } });
         if (post === null) return { ok: false, error: "Post not Found" };
         post.photo.forEach(url => deleteToS3(url));
         await client.reComment.deleteMany({ where: { postId: id } });
@@ -63,7 +64,7 @@ const deletePost: Resolver = async (_, { id }: { id: number }, { client, loggedI
 
 const resolvers: Resolvers = {
     Query: {
-        seePost: async (_, { id, offset = 0 }: { id: number | undefined, offset: number }, { client, loggedInUser }): Promise<Post[] | null> => {
+        seePost: async (_, { id, offset: skip = 0 }: { id: number | undefined, offset: number }, { loggedInUser }): Promise<Post[] | null> => {
             try {
                 if (id) {
                     const post = await client.post.findFirst({
@@ -99,7 +100,7 @@ const resolvers: Resolvers = {
                 } else {
                     const post = await client.post.findMany({
                         take: 10,
-                        skip: offset,
+                        skip,
                         where: {
                             OR: [{
                                 account: loggedInUser

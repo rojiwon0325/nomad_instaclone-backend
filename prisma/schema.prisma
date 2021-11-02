@@ -32,6 +32,9 @@ model User {
   ////
   comment   Comment[]
   reComment ReComment[]
+  chatRoom  ChatRoom[]
+  sentchat  Chat[]      @relation("sender")
+  viewChat  Chat[]      @relation("viewer", references: [id])
 }
 
 model Post {
@@ -81,4 +84,25 @@ model ReComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   //
+}
+
+model ChatRoom {
+  id   Int    @id @default(autoincrement())
+  user User[]
+  chat Chat[]
+
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  text      String   @default(" ")
+  read      Boolean  @default(false)
+  roomId    Int
+  account   String
+  createdAt DateTime @default(now())
+
+  sender   User     @relation("sender", fields: [account], references: [account])
+  viewer   User[]   @relation("viewer", references: [account])
+  chatRoom ChatRoom @relation(fields: [roomId], references: [id])
 }

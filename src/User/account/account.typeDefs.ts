@@ -8,6 +8,7 @@ export default gql`
     }
     type Mutation{
         newAccount(username:String! account:String! password:String!): ResultToken!
+        deleteAccount(password:String!): ResultToken!
         login(account:String! password:String!): LoginToken!
     }
 `;

@@ -1,8 +1,9 @@
+import client from "prismaClient";
 import { Resolver, Resolvers, ResultToken } from "types";
 import { User } from "User/interface";
 import { ifLogin, mapUser } from "User/user.utils";
 
-const requestFollow: Resolver = async (_, { account }: { account: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const requestFollow: Resolver = async (_, { account }: { account: string }, { loggedInUser }): Promise<ResultToken> => {
     try {
         if (loggedInUser === account) {
             return { ok: false, error: "Can't follow myself" };
@@ -27,7 +28,7 @@ const requestFollow: Resolver = async (_, { account }: { account: string }, { cl
         return { ok: false, error: "Fail to follow" };
     }
 };
-const responseFollow: Resolver = async (_, { account, accept }: { account: string, accept: boolean }, { client, loggedInUser }): Promise<ResultToken> => {
+const responseFollow: Resolver = async (_, { account, accept }: { account: string, accept: boolean }, { loggedInUser }): Promise<ResultToken> => {
     try {
         await client.user.update({
             where: { account: loggedInUser },
@@ -41,7 +42,7 @@ const responseFollow: Resolver = async (_, { account, accept }: { account: strin
         return { ok: false, error: "Fail to response follow" }
     }
 };
-const deleteFollower: Resolver = async (_, { account }: { account: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const deleteFollower: Resolver = async (_, { account }: { account: string }, { loggedInUser }): Promise<ResultToken> => {
     try {
         await client.user.update({
             where: { account: loggedInUser },
@@ -54,7 +55,7 @@ const deleteFollower: Resolver = async (_, { account }: { account: string }, { c
         return { ok: false, error: "Fail to delete follower" }
     }
 };
-const deleteFollowing: Resolver = async (_, { account }: { account: string }, { client, loggedInUser }): Promise<ResultToken> => {
+const deleteFollowing: Resolver = async (_, { account }: { account: string }, { loggedInUser }): Promise<ResultToken> => {
     try {
         await client.user.update({
             where: { account: loggedInUser },
@@ -70,7 +71,7 @@ const deleteFollowing: Resolver = async (_, { account }: { account: string }, { 
 
 const resolvers: Resolvers = {
     Query: {
-        seeFollower: async (_, { account, offset = 0 }: { account: string, offset: number }, { client, loggedInUser }): Promise<User[]> => {
+        seeFollower: async (_, { account, offset: skip = 0 }: { account: string, offset: number }, { loggedInUser }): Promise<User[]> => {
             try {
                 const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } } };
                 const { follower } = await client.user.findFirst({
@@ -79,18 +80,14 @@ const resolvers: Resolvers = {
                         OR: [{ isPublic: true }, { follower: { some: { account: loggedInUser } } }],
                     },
                     select: {
-                        follower: {
-                            take: 25,
-                            skip: offset,
-                            select,
-                        },
+                        follower: { take: 25, skip, select, },
                     },
                 }) ?? { follower: [] };
                 return mapUser(follower, loggedInUser);
             } catch { }
             return [];
         },
-        seeFollowing: async (_, { account, offset = 0 }: { account: string, offset: number }, { client, loggedInUser }): Promise<User[]> => {
+        seeFollowing: async (_, { account, offset: skip = 0 }: { account: string, offset: number }, { loggedInUser }): Promise<User[]> => {
             try {
                 const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } } };
                 const { following } = await client.user.findFirst({
@@ -99,11 +96,7 @@ const resolvers: Resolvers = {
                         OR: [{ isPublic: true }, { follower: { some: { account: loggedInUser } } }],
                     },
                     select: {
-                        following: {
-                            take: 25,
-                            skip: offset,
-                            select,
-                        },
+                        following: { take: 25, skip, select, },
                     },
                 }) ?? { following: [] };
                 return mapUser(following, loggedInUser);

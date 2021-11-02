@@ -1,9 +1,10 @@
 import { Comment, ReComment } from "Post/interface";
 import { ifPermitted } from "Post/post.utils";
+import client from "prismaClient";
 import { Resolver, Resolvers, ResultToken } from "types";
 import { ifLogin } from "User/user.utils";
 
-const newComment: Resolver = async (_, { postId, text, rootId }: { postId: number, text: string, rootId: number | undefined }, { client, loggedInUser: account }): Promise<ResultToken & { comment?: Comment | ReComment }> => {
+const newComment: Resolver = async (_, { postId, text, rootId }: { postId: number, text: string, rootId: number | undefined }, { loggedInUser: account }): Promise<ResultToken & { comment?: Comment | ReComment }> => {
     try {
         const data = {
             text,
@@ -34,7 +35,7 @@ const newComment: Resolver = async (_, { postId, text, rootId }: { postId: numbe
     } catch { }
     return { ok: false, error: "Fail to create comment" };
 };
-const deleteComment: Resolver = async (_, { id }: { id: number }, { client, loggedInUser: account }): Promise<ResultToken> => {
+const deleteComment: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
         const { count } = await client.comment.deleteMany({ where: { id, OR: [{ account }, { post: { account } },] } });
         if (count > 0) {
@@ -46,13 +47,13 @@ const deleteComment: Resolver = async (_, { id }: { id: number }, { client, logg
     } catch { }
     return { ok: false, error: "Fail to delete comment" };
 };
-const seeComment: Resolver = async (_, { postId, rootId, offset = 0 }: { postId: number, rootId: number | undefined, offset: number | undefined }, { client, loggedInUser }): Promise<Comment[] | ReComment[]> => {
+const seeComment: Resolver = async (_, { postId, rootId, offset: skip = 0 }: { postId: number, rootId: number | undefined, offset: number | undefined }, { loggedInUser }): Promise<Comment[] | ReComment[]> => {
     try {
         if (rootId) {
-            const list = await client.reComment.findMany({ where: { postId, rootId }, take: 10, skip: offset, select: { id: true, text: true, account: true, createdAt: true, rootId: true } });
+            const list = await client.reComment.findMany({ where: { postId, rootId }, take: 10, skip, select: { id: true, text: true, account: true, createdAt: true, rootId: true } });
             return list.map(elem => { return { ...elem, isMine: elem.account === loggedInUser } });
         } else {
-            const list = await client.comment.findMany({ where: { postId }, take: 10, skip: offset, select: { id: true, text: true, account: true, createdAt: true, _count: { select: { reComment: true } } } });
+            const list = await client.comment.findMany({ where: { postId }, take: 10, skip, select: { id: true, text: true, account: true, createdAt: true, _count: { select: { reComment: true } } } });
             return list.map(elem => { return { ...elem, isMine: elem.account === loggedInUser } });
         }
     } catch { }

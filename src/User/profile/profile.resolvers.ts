@@ -1,25 +1,26 @@
 import bcrypt from "bcrypt";
 import { FileUpload } from "graphql-upload";
+import client from "prismaClient";
 import { deleteToS3, uploadToS3 } from "Shared/shared.utils";
 import { Resolver, Resolvers, ResultToken } from "types";
 import { User } from "User/interface";
 import { ifLogin } from "User/user.utils";
 
-const editProfile: Resolver = async (_, { username, password, avatar, bio, isPublic }: { username?: string, avatar?: FileUpload, bio?: string, password: string, isPublic?: boolean }, { client, loggedInUser }): Promise<ResultToken & { data?: { username: string, avatarUrl: string, isPublic: boolean, bio: string } }> => {
+const editProfile: Resolver = async (_, { username, password, avatar, bio, isPublic }: { username?: string, avatar?: FileUpload, bio?: string, password: string, isPublic?: boolean }, { loggedInUser: account }): Promise<ResultToken & { data?: { username: string, avatarUrl: string, isPublic: boolean, bio: string } }> => {
     try {
-        const { password: myPassword, avatarUrl } = await client.user.findUnique({ where: { account: loggedInUser }, select: { password: true, avatarUrl: true } }) ?? { mypassword: "", avatarUrl: "" };
+        const { password: myPassword, avatarUrl } = await client.user.findUnique({ where: { account }, select: { password: true, avatarUrl: true } }) ?? { mypassword: "", avatarUrl: "" };
         const auth = myPassword ? await bcrypt.compare(password, myPassword) : false;
         if (auth) {
             if (avatar) {
                 deleteToS3(avatarUrl);
             }
             const data = await client.user.update({
-                where: { account: loggedInUser },
+                where: { account },
                 data: {
                     username,
                     bio,
                     isPublic,
-                    ...(avatar && { avatarUrl: await uploadToS3(avatar, loggedInUser, "avatar") })
+                    ...(avatar && { avatarUrl: await uploadToS3(avatar, account, "avatar") })
                 },
                 select: {
                     username: true,
@@ -36,7 +37,7 @@ const editProfile: Resolver = async (_, { username, password, avatar, bio, isPub
 
 const resolvers: Resolvers = {
     Query: {
-        seeProfile: async (_, { account }: { account: string }, { client, loggedInUser }): Promise<User | null> => {
+        seeProfile: async (_, { account }: { account: string }, { loggedInUser }): Promise<User | null> => {
             try {
                 const prisma = client.user.findUnique({
                     where: { account },

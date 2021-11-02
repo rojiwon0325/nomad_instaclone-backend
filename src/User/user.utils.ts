@@ -2,7 +2,6 @@ import { JWTPayload, jwtVerify } from "jose";
 import client from "prismaClient";
 import privateKey from "privateKey";
 import { Resolver } from "types";
-import { User } from "User/interface";
 
 interface Payload extends JWTPayload {
     account?: string

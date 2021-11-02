@@ -1,9 +1,10 @@
+import client from "prismaClient";
 import { Resolvers } from "types";
 import { User } from "User/interface";
 
 const resolvers: Resolvers = {
     Query: {
-        searchUsers: async (_, { key }: { key: string }, { client }): Promise<User[]> => {
+        searchUsers: async (_, { key }: { key: string }): Promise<User[]> => {
             try {
                 return client.user.findMany({
                     where: { OR: [{ username: { contains: key } }, { account: { contains: key } }] },
