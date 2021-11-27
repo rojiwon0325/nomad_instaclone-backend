@@ -4,20 +4,20 @@ import { Resolver, Resolvers, ResultToken } from "types";
 import { User } from "User/interface";
 import { ifLogin, mapUser } from "User/user.utils";
 
-const clickLike: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }): Promise<ResultToken & { type?: string, postId?: number }> => {
+const clickLike = async (id: number, account: string, like: boolean): Promise<ResultToken & { postId?: number }> => {
+    const likePost = like ? { connect: { id } } : { disconnect: { id } };
     try {
-        const post = await client.post.findFirst({ where: { id, like: { some: { account } } } });
-        const [type, likePost] = post ? ["unlike", { disconnect: { id } }] : ["like", { connect: { id } }];
-        await client.user.update({
-            where: { account },
-            data: {
-                likePost,
-            }
-        });
-        return { ok: true, type, postId: id };
+        await client.user.update({ where: { account }, data: { likePost } });
+        return { ok: true, postId: id };
     } catch { }
-    return { ok: false, error: "Fail to like or unlike" };
+    return { ok: false, error: "좋아요 정보를 업데이트하지 못했습니다." };
 };
+
+const doLike: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }) =>
+    clickLike(id, account, true);
+
+const doUnLike: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }) =>
+    clickLike(id, account, false);
 
 const seeLike: Resolver = async (_, { id, offset: skip }: { id: number, offset: number }, { loggedInUser: account }): Promise<User[]> => {
     try {
@@ -39,7 +39,8 @@ const resolvers: Resolvers = {
         seeLike: ifPermitted(seeLike),
     },
     Mutation: {
-        clickLike: ifLogin(clickLike),
+        doLike: ifLogin(doLike),
+        doUnLike: ifLogin(doUnLike),
     }
 };
 
