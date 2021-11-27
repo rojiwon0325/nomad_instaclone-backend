@@ -6,6 +6,9 @@ export default gql`
         token: String
         error: String
     }
+    type Query{
+        getAccount: Boolean!
+    }
     type Mutation{
         newAccount(username:String! account:String! password:String!): ResultToken!
         deleteAccount(password:String!): ResultToken!

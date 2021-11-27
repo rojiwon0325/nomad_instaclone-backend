@@ -22,12 +22,16 @@ const deleteAccount: Resolver = async (_, { password }: { password: string }, { 
 
 
 const resolvers: Resolvers = {
+    Query: {
+        getAccount: async (_, __, { loggedInUser: account }) => (await client.user.findUnique({ where: { account } })) ? true : false,
+
+    },
     Mutation: {
         newAccount: async (_, { username, account, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {
             try {
                 const user = await client.user.findUnique({ where: { account } });
                 if (user) {
-                    return { ok: false, error: "This account is already used." };
+                    return { ok: false, error: "이미 존재하는 계정입니다." };
                 }
                 const newPassword = await bcrypt.hash(password, 10);
                 await client.user.create({
@@ -35,7 +39,7 @@ const resolvers: Resolvers = {
                 })
                 return { ok: true };
             } catch {
-                return { ok: false, error: "Fail to create new account." }
+                return { ok: false, error: "계정 생성에 실패하였습니다." }
             }
         },
         deleteAccount: ifLogin(deleteAccount),
@@ -43,11 +47,11 @@ const resolvers: Resolvers = {
             try {
                 const user = await client.user.findUnique({ where: { account } });
                 if (!user) {
-                    return { ok: false, error: "Account Not Fount." };
+                    return { ok: false, error: "계정이 존재하지 않습니다." };
                 }
                 const auth = await bcrypt.compare(password, user.password);
                 if (!auth) {
-                    return { ok: false, error: "Incorrect Password." };
+                    return { ok: false, error: "계정정보가 일치하지 않습니다." };
                 }
                 const token = await new SignJWT({ account })
                     .setProtectedHeader({ alg: 'ES256' })
@@ -56,7 +60,7 @@ const resolvers: Resolvers = {
 
                 return { ok: true, token };
             } catch {
-                return { ok: false, error: "Fail to login" };
+                return { ok: false, error: "로그인에 실패하였습니다." };
             }
         }
     },

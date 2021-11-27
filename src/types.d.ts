@@ -9,7 +9,7 @@ export interface Resolver {
 }
 
 export interface Resolvers {
-    [key: string]: GraphQLScalarType | {
+    [key: string]: {
         [key: string]: Resolver | {
             [key: string]: Resolver,
         }

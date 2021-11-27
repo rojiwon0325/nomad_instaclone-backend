@@ -1,7 +1,12 @@
 import AWS from "aws-sdk";
 import { FileUpload } from "graphql-upload";
 
-
+declare var process: {
+    env: {
+        AWS_ID: string,
+        AWS_SECRET: string,
+    }
+}
 
 export const uploadToS3 = async (file: FileUpload, account: string, folder: string): Promise<string> => {
     try {
