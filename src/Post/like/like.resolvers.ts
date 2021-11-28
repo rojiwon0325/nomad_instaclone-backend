@@ -1,3 +1,4 @@
+import { Prisma } from ".prisma/client";
 import { ifPermitted } from "Post/post.utils";
 import client from "prismaClient";
 import { Resolver, Resolvers, ResultToken } from "types";
@@ -19,7 +20,14 @@ const clickLike = async (id: number, account: string, like: boolean): Promise<Re
             });
         }
         return { ok: true, postId: id };
-    } catch { }
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if ((e.code === "P2002" && like) || (e.code === "P2025" && !like)) {
+                return { ok: true, postId: id };
+            }
+            console.log(e.code);
+        }
+    }
     return { ok: false, error: "좋아요 정보를 업데이트하지 못했습니다." };
 };
 

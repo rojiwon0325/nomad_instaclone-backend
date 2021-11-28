@@ -10,7 +10,7 @@ export default gql`
         seeLike(id:Int! offset:Int!): [User!]!
     }
     type Mutation {
-        doLike(id:Int!): LikeResult
-        doUnLike(id:Int!): LikeResult 
+        doLike(id:Int!): LikeResult!
+        doUnLike(id:Int!): LikeResult!
     }
 `;
