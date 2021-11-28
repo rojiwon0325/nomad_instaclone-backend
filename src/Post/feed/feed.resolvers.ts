@@ -35,7 +35,7 @@ const resolvers: Resolvers = {
                     }
                 }) ?? { post: null };
                 return post;
-            } catch { }
+            } catch (e) { console.log(e) }
             return []; // error시 빈 배열 반환
         }
     }

@@ -21,7 +21,7 @@ export default gql`
         comment: Comment
     }
     type Query{
-        seeComment(postId:Int! rootId:Int offset:Int): [Comment]!
+        seeComment(postId:Int! rootId:Int offset:Int): [Comment!]!
     }
     type Mutation{
         newComment(postId:Int! text:String! rootId:Int): CommentResult!

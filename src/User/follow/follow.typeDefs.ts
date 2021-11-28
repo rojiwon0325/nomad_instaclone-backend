@@ -2,8 +2,8 @@ import { gql } from "apollo-server-express";
 
 export default gql`
     type Query{
-        seeFollower(account:String! offset:Int): [User]!
-        seeFollowing(account:String! offset:Int): [User]!
+        seeFollower(account:String! offset:Int): [User!]!
+        seeFollowing(account:String! offset:Int): [User!]!
     }
     type Mutation{
         requestFollow(account:String!): ResultToken!

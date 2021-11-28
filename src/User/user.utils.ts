@@ -33,11 +33,26 @@ export const getAccount = async (token: any): Promise<string> => {
     return "";
 }
 
-export const mapUser = (array: { username: string, account: string, avatarUrl: string, follower: { account: string }[] }[], myAccount: string) =>
-    array.map(({ username, account, avatarUrl, follower }) => {
-        return {
-            username, account, avatarUrl,
-            isMe: account === myAccount,
-            isFollowing: follower.length > 0,
-        }
-    });
+interface IMap {
+    user: {
+        account: string;
+        username: string;
+        avatarUrl: string;
+        follower: { account: string }[];
+    };
+}
+interface IMapUser {
+    account: string;
+    username: string;
+    avatarUrl: string;
+    follower: { account: string }[];
+}
+
+export const mapUser = (array: IMap[] | IMapUser[], myAccount: string) => array.map((elem) => {
+    const { username, account, avatarUrl, follower } = ("user" in elem ? elem.user : elem);
+    return {
+        username, account, avatarUrl,
+        isMe: account === myAccount,
+        isFollowing: follower.length > 0,
+    }
+});

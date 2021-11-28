@@ -9,6 +9,6 @@ export default gql`
         _count: Hashtag_count
     } 
     type Query{
-        searchTag(tag:String! offset:Int):[Hashtag]!
+        searchTag(tag:String! offset:Int):[Hashtag!]!
     }
 `;

@@ -22,6 +22,6 @@ export default gql`
         profile:        Profile
     }
     type Query{
-        searchUsers(key:String!): [User]!
+        searchUsers(key:String!): [User!]!
     }
 `;

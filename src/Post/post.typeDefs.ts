@@ -16,12 +16,12 @@ export default gql`
     }
     type Post{
         id:         Int!
-        photo:      [String]!
+        photo:      [String!]!
         _count: Post_count
         detail: Post_detail
     }
     type Query{
-        seePost(id:Int offset:Int): [Post]
+        seePost(id:Int offset:Int): [Post!]
     }
     type Mutation{
         newPost(photo:[Upload!]! caption:String!): ResultToken!

@@ -11,8 +11,8 @@ export default gql`
     }
     type ChatRoom {
         id: Int!
-        user: [User]!
-        chat: [Chat]!
+        user: [User!]!
+        chat: [Chat!]!
         updatedAt: String!
     }
 `;

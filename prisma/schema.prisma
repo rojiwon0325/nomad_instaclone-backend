@@ -28,7 +28,7 @@ model User {
   followReqToMe    User[] @relation("followReq", references: [account])
   followReqToOther User[] @relation("followReq", references: [account])
 
-  likePost  Post[]      @relation("likePost", references: [id])
+  like      Like[]
   ////
   comment   Comment[]
   reComment ReComment[]
@@ -37,10 +37,20 @@ model User {
   viewChat  Chat[]      @relation("viewer", references: [id])
 }
 
+model Like {
+  id      Int    @id @default(autoincrement())
+  user    User   @relation(fields: [account], references: [account])
+  post    Post   @relation(fields: [postId], references: [id])
+  account String
+  postId  Int
+
+  @@unique([account, postId])
+}
+
 model Post {
   id      Int      @id @default(autoincrement())
   user    User     @relation("user_post", fields: [account], references: [account])
-  like    User[]   @relation("likePost", references: [account])
+  like    Like[]
   photo   String[]
   public  Boolean  @default(true)
   account String

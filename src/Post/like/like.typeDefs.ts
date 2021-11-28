@@ -7,7 +7,7 @@ export default gql`
         postId: Int
     }
     type Query{
-        seeLike(id:Int! offset:Int!): [User]!
+        seeLike(id:Int! offset:Int!): [User!]!
     }
     type Mutation {
         doLike(id:Int!): LikeResult
