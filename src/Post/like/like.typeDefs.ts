@@ -4,7 +4,7 @@ export default gql`
     type LikeResult{
         ok: Boolean!
         error: String
-        postId: Int
+        type: Boolean
     }
     type Query{
         seeLike(id:Int! offset:Int!): [User!]!

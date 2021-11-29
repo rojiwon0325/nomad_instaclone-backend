@@ -14,7 +14,7 @@ const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], c
             data: {
                 user: { connect: { account } },
                 photo: photos,
-                caption,
+                caption: caption.split("\n"),
                 hashtag: {
                     connectOrCreate: hashtags
                 }
@@ -38,7 +38,7 @@ const editPost: Resolver = async (_, { id, caption }: { id: number, caption: str
         await client.post.update({
             where: { id },
             data: {
-                caption,
+                caption: caption.split("\n"),
                 hashtag: {
                     disconnect: post.hashtag,
                     connectOrCreate: extractTags(caption)
@@ -96,7 +96,7 @@ const resolvers: Resolvers = {
                     if (post === null) { return null; }
                     else {
                         const { id: ID, photo, account, caption, createdAt, _count, like } = post;
-                        return [{ id: ID, photo, _count, detail: { account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } }];
+                        return [{ id: ID, photo, _count, detail: { comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } }];
                     }
                 } else {
                     const post = await client.post.findMany({
@@ -128,7 +128,7 @@ const resolvers: Resolvers = {
                         },
                     });
                     return post.map(({ id: ID, photo, account, caption, createdAt, _count, like }) => {
-                        return { id: ID, photo, _count, detail: { account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } };
+                        return { id: ID, photo, _count, detail: { comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } };
                     });
                 }
             } catch (e) { console.log(e) }

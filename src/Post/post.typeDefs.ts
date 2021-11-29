@@ -7,7 +7,8 @@ export default gql`
         reComment: Int!
     }
     type Post_detail{
-        caption:    String!
+        comments: [Comment!]! 
+        caption:    [String!]!
         account:    String!
         createdAt:  String!
 

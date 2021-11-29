@@ -5,28 +5,21 @@ import { Resolver, Resolvers, ResultToken } from "types";
 import { User } from "User/interface";
 import { ifLogin, mapUser } from "User/user.utils";
 
-const clickLike = async (id: number, account: string, like: boolean): Promise<ResultToken & { postId?: number }> => {
+const clickLike = async (postId: number, account: string, type: boolean): Promise<ResultToken & { type?: boolean }> => {
     try {
-        if (like) {
-            await client.like.create({
-                data: {
-                    account,
-                    postId: id
-                }
-            });
+        if (type) {
+            await client.like.create({ data: { account, postId } });
         } else {
-            await client.like.delete({
-                where: { account_postId: { account, postId: id } }
-            });
+            await client.like.delete({ where: { account_postId: { account, postId } } });
         }
-        return { ok: true, postId: id };
+        return { ok: true, type };
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            if ((e.code === "P2002" && like) || (e.code === "P2025" && !like)) {
-                return { ok: true, postId: id };
+            if ((e.code === "P2002" && type) || (e.code === "P2025" && !type)) {
+                return { ok: false, error: e.code, type };
             }
-            console.log(e.code);
         }
+        console.log(e);
     }
     return { ok: false, error: "좋아요 정보를 업데이트하지 못했습니다." };
 };

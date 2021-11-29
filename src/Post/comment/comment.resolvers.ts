@@ -7,7 +7,7 @@ import { ifLogin } from "User/user.utils";
 const newComment: Resolver = async (_, { postId, text, rootId }: { postId: number, text: string, rootId: number | undefined }, { loggedInUser: account }): Promise<ResultToken & { comment?: Comment | ReComment }> => {
     try {
         const data = {
-            text,
+            text: text.split('\n'),
             user: { connect: { account } },
             post: { connect: { id: postId } },
         };
@@ -47,16 +47,16 @@ const deleteComment: Resolver = async (_, { id }: { id: number }, { loggedInUser
     } catch { }
     return { ok: false, error: "Fail to delete comment" };
 };
-const seeComment: Resolver = async (_, { postId, rootId, offset: skip = 0 }: { postId: number, rootId: number | undefined, offset: number | undefined }, { loggedInUser }): Promise<Comment[] | ReComment[]> => {
+const seeComment: Resolver = async (_, { postId, rootId, offset: skip = 0, take = 10 }: { postId: number, rootId: number | undefined, offset: number | undefined, take: number }, { loggedInUser }): Promise<Comment[] | ReComment[]> => {
     try {
         if (rootId) {
-            const list = await client.reComment.findMany({ where: { postId, rootId }, take: 10, skip, select: { id: true, text: true, account: true, createdAt: true, rootId: true } });
+            const list = await client.reComment.findMany({ where: { postId, rootId }, take, skip, select: { id: true, text: true, account: true, createdAt: true, rootId: true } });
             return list.map(elem => { return { ...elem, isMine: elem.account === loggedInUser } });
         } else {
-            const list = await client.comment.findMany({ where: { postId }, take: 10, skip, select: { id: true, text: true, account: true, createdAt: true, _count: { select: { reComment: true } } } });
+            const list = await client.comment.findMany({ where: { postId }, take, skip, select: { id: true, text: true, account: true, createdAt: true, _count: { select: { reComment: true } } } });
             return list.map(elem => { return { ...elem, isMine: elem.account === loggedInUser } });
         }
-    } catch { }
+    } catch (e) { console.log(e) }
     return [];
 };
 

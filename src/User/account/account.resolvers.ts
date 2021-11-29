@@ -23,8 +23,7 @@ const deleteAccount: Resolver = async (_, { password }: { password: string }, { 
 
 const resolvers: Resolvers = {
     Query: {
-        getAccount: async (_, __, { loggedInUser: account }) => (await client.user.findUnique({ where: { account } })) ? true : false,
-
+        getMe: (_, __, { loggedInUser }) => loggedInUser === "" ? null : loggedInUser,
     },
     Mutation: {
         newAccount: async (_, { username, account, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {

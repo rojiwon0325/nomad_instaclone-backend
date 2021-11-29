@@ -8,8 +8,9 @@ export interface Post {
         reComment: number
     } | null
     detail?: {
+        comments: Comment[]
         account: string
-        caption: string
+        caption: string[]
         createdAt: Date
 
         isMine: boolean
@@ -26,7 +27,7 @@ export interface Hashtag {
 
 export interface Comment {
     id: number,
-    text: string,
+    text: string[],
     account: string,
     createdAt: Date,
 
@@ -39,7 +40,7 @@ export interface Comment {
 
 export interface ReComment {
     id: number,
-    text: string,
+    text: string[],
     rootId: number,
     account: string,
     createdAt: Date,

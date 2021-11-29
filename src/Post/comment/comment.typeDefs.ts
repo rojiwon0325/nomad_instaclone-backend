@@ -6,7 +6,7 @@ export default gql`
     }
     type Comment{
         id: Int!
-        text: String!
+        text: [String!]!
         rootId: String
         account: String!
         createdAt: String!
@@ -21,7 +21,7 @@ export default gql`
         comment: Comment
     }
     type Query{
-        seeComment(postId:Int! rootId:Int offset:Int): [Comment!]!
+        seeComment(postId:Int! rootId:Int offset:Int, take:Int): [Comment!]!
     }
     type Mutation{
         newComment(postId:Int! text:String! rootId:Int): CommentResult!

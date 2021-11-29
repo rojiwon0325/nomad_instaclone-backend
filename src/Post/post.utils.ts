@@ -19,7 +19,9 @@ export function ifPermitted(resolver: Resolver): Resolver {
                 OR: [{ account },
                 { user: { follower: { some: { account } } } },
                 { public: true }]
-            }, select: {}
+            }, select: {
+                id: true
+            }
         });
         return post ? resolver(root, args, context, info) : [];
     }
