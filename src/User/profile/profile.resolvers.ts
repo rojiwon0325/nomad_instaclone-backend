@@ -67,9 +67,9 @@ const resolvers: Resolvers = {
                 else {
                     const { account, username, avatarUrl, bio, isPublic, _count, followReqToMe } = user;
                     const isFollowing = follower.length > 0;
-                    const isRequsting = followReqToMe.length > 0;
+                    const isRequesting = followReqToMe.length > 0;
                     const isMe = account === loggedInUser;
-                    return { account, username, avatarUrl, isMe, isFollowing, isRequsting, profile: { bio, isPublic, _count } };
+                    return { account, username, avatarUrl, isMe, isFollowing, isRequesting, profile: { bio, isPublic, _count } };
                 }
             } catch { }
             return null;
