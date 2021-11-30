@@ -7,7 +7,7 @@ import { ifLogin } from "User/user.utils";
 const newComment: Resolver = async (_, { postId, text, rootId }: { postId: number, text: string, rootId: number | undefined }, { loggedInUser: account }): Promise<ResultToken & { comment?: Comment | ReComment }> => {
     try {
         const data = {
-            text: text.split('\n'),
+            text: text.split(/\n|\r/),
             user: { connect: { account } },
             post: { connect: { id: postId } },
         };
