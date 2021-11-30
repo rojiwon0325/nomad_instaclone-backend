@@ -6,6 +6,7 @@ export interface User {
 
     isMe?: boolean
     isFollowing?: boolean
+    isRequsting?: boolean
 
     profile?: {
         bio: string
