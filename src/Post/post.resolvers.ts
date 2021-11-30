@@ -116,8 +116,7 @@ const resolvers: Resolvers = {
                                         some: { account: loggedInUser }
                                     }
                                 }
-                            },
-                            { public: true }]
+                            }]
                         },
                         orderBy: {
                             createdAt: "desc"
