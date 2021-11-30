@@ -88,6 +88,11 @@ const resolvers: Resolvers = {
                             account: true,
                             caption: true,
                             createdAt: true,
+                            user: {
+                                select: {
+                                    avatarUrl: true,
+                                }
+                            },
                             _count: { select: { like: true, comment: true, reComment: true } },
                             like: { where: { account: loggedInUser } }
                         },
@@ -95,8 +100,8 @@ const resolvers: Resolvers = {
 
                     if (post === null) { return null; }
                     else {
-                        const { id: ID, photo, account, caption, createdAt, _count, like } = post;
-                        return [{ id: ID, photo, _count, detail: { comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } }];
+                        const { id: ID, photo, account, caption, createdAt, _count, like, user: { avatarUrl } } = post;
+                        return [{ id: ID, photo, _count, detail: { avatarUrl, comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } }];
                     }
                 } else {
                     const post = await client.post.findMany({
@@ -123,12 +128,17 @@ const resolvers: Resolvers = {
                             account: true,
                             caption: true,
                             createdAt: true,
+                            user: {
+                                select: {
+                                    avatarUrl: true,
+                                }
+                            },
                             _count: { select: { like: true, comment: true, reComment: true } },
                             like: { where: { account: loggedInUser } }
                         },
                     });
-                    return post.map(({ id: ID, photo, account, caption, createdAt, _count, like }) => {
-                        return { id: ID, photo, _count, detail: { comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } };
+                    return post.map(({ id: ID, photo, account, caption, createdAt, _count, like, user: { avatarUrl } }) => {
+                        return { id: ID, photo, _count, detail: { avatarUrl, comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } };
                     });
                 }
             } catch (e) { console.log(e) }

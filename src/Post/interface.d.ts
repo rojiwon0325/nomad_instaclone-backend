@@ -10,6 +10,7 @@ export interface Post {
     detail?: {
         comments: Comment[]
         account: string
+        avatarUrl: string
         caption: string[]
         createdAt: Date
 

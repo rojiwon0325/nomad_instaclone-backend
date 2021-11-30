@@ -10,6 +10,7 @@ export default gql`
         comments: [Comment!]! 
         caption:    [String!]!
         account:    String!
+        avatarUrl:  String!
         createdAt:  String!
 
         isMine:     Boolean!

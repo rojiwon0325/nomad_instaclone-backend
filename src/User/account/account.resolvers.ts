@@ -4,6 +4,7 @@ import privateKey from "privateKey";
 import { SignJWT } from "jose";
 import client from "prismaClient";
 import { ifLogin } from "User/user.utils";
+import { User } from "User/interface";
 
 const deleteAccount: Resolver = async (_, { password }: { password: string }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
@@ -11,7 +12,6 @@ const deleteAccount: Resolver = async (_, { password }: { password: string }, { 
         const auth = await bcrypt.compare(password, user.password);
         if (auth) {
             await client.user.delete({ where: { account } });
-            //강제 로그아웃 동작 추가 필요
             return { ok: true };
         } else {
             return { ok: false, error: "The password is incorrect" };
@@ -23,7 +23,30 @@ const deleteAccount: Resolver = async (_, { password }: { password: string }, { 
 
 const resolvers: Resolvers = {
     Query: {
-        getMe: (_, __, { loggedInUser }) => loggedInUser === "" ? null : loggedInUser,
+        getMe: async (_, __, { loggedInUser: account }): Promise<User | null> => {
+            try {
+                const user = await client.user.findUnique({
+                    where: { account },
+                    select: {
+                        username: true,
+                        avatarUrl: true,
+                        bio: true,
+                        isPublic: true,
+                        _count: {
+                            select: {
+                                post: true,
+                                follower: true,
+                                following: true,
+                            }
+                        }
+                    }
+                });
+                if (user === null) return null;
+                const { username, avatarUrl, bio, isPublic, _count } = user;
+                return { account, username, avatarUrl, isMe: true, profile: { bio, isPublic, _count } };
+            } catch { }
+            return null;
+        },
     },
     Mutation: {
         newAccount: async (_, { username, account: preaccount, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {
