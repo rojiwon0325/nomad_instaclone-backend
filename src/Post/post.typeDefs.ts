@@ -23,7 +23,7 @@ export default gql`
         detail: Post_detail
     }
     type Query{
-        seePost(id:Int offset:Int): [Post!]
+        seePost(id:Int offset:Int account:String): [Post!]
     }
     type Mutation{
         newPost(photo:[Upload!]! caption:String!): ResultToken!

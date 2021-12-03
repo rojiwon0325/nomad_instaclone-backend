@@ -64,7 +64,7 @@ const deletePost: Resolver = async (_, { id }: { id: number }, { loggedInUser: a
 
 const resolvers: Resolvers = {
     Query: {
-        seePost: async (_, { id, offset: skip = 0 }: { id: number | undefined, offset: number }, { loggedInUser }): Promise<Post[] | null> => {
+        seePost: async (_, { id, offset: skip = 0, account }: { id: number | undefined, offset: number, account?: string }, { loggedInUser }): Promise<Post[] | null> => {
             try {
                 if (id) {
                     const post = await client.post.findFirst({
@@ -104,23 +104,9 @@ const resolvers: Resolvers = {
                         return [{ id: ID, photo, _count, detail: { avatarUrl, comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } }];
                     }
                 } else {
-                    const post = await client.post.findMany({
+                    const content = {
                         take: 10,
                         skip,
-                        where: {
-                            OR: [{
-                                account: loggedInUser
-                            }, {
-                                user: {
-                                    follower: {
-                                        some: { account: loggedInUser }
-                                    }
-                                }
-                            }]
-                        },
-                        orderBy: {
-                            createdAt: "desc"
-                        },
                         select: {
                             id: true,
                             photo: true,
@@ -135,7 +121,17 @@ const resolvers: Resolvers = {
                             _count: { select: { like: true, comment: true, reComment: true } },
                             like: { where: { account: loggedInUser } }
                         },
-                    });
+                    };
+                    const post = account ?
+                        await client.user.findFirst({ where: { account, OR: [{ isPublic: true }, { follower: { some: { account: loggedInUser } } }] } })
+                            .post({ ...content, orderBy: { createdAt: "desc" }, })
+                        : await client.post.findMany({
+                            where: {
+                                OR: [{ account: loggedInUser }, { user: { follower: { some: { account: loggedInUser } } } }]
+                            },
+                            ...content,
+                            orderBy: { createdAt: "desc" },
+                        });
                     return post.map(({ id: ID, photo, account, caption, createdAt, _count, like, user: { avatarUrl } }) => {
                         return { id: ID, photo, _count, detail: { avatarUrl, comments: [], account, caption, createdAt, isMine: account === loggedInUser, isLiked: like.length > 0 } };
                     });
