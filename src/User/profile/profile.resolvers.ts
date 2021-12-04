@@ -6,7 +6,7 @@ import { Resolver, Resolvers, ResultToken } from "types";
 import { User } from "User/interface";
 import { ifLogin } from "User/user.utils";
 
-const editProfile: Resolver = async (_, { username, password, avatar, bio, isPublic }: { username?: string, avatar?: FileUpload, bio?: string, password: string, isPublic?: boolean }, { loggedInUser: account }): Promise<ResultToken & { data?: { username: string, avatarUrl: string, isPublic: boolean, bio: string } }> => {
+const editProfile: Resolver = async (_, { username, password, avatar, bio, isPublic }: { username?: string, avatar?: FileUpload, bio?: string, password: string, isPublic?: boolean }, { loggedInUser: account }): Promise<ResultToken & { data?: { username: string, avatarUrl: string, isPublic: boolean, bio: string[] } }> => {
     try {
         const { password: myPassword, avatarUrl } = await client.user.findUnique({ where: { account }, select: { password: true, avatarUrl: true } }) ?? { mypassword: "", avatarUrl: "" };
         const auth = myPassword ? await bcrypt.compare(password, myPassword) : false;
@@ -18,7 +18,7 @@ const editProfile: Resolver = async (_, { username, password, avatar, bio, isPub
                 where: { account },
                 data: {
                     username,
-                    bio,
+                    ...(bio && { bio: bio.split(/\n|\r/) }),
                     isPublic,
                     ...(avatar && { avatarUrl: await uploadToS3(avatar, account, "avatar") })
                 },

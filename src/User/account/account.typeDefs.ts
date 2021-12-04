@@ -8,6 +8,7 @@ export default gql`
     }
     type Query{
         getMe: User
+        checkAccess(account: String!): Boolean!
     }
     type Mutation{
         newAccount(username:String! account:String! password:String!): ResultToken!

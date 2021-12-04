@@ -14,7 +14,7 @@ const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], c
             data: {
                 user: { connect: { account } },
                 photo: photos,
-                caption: caption.split("\n"),
+                caption: caption.split(/\n|\r/),
                 hashtag: {
                     connectOrCreate: hashtags
                 }

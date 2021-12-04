@@ -47,6 +47,16 @@ const resolvers: Resolvers = {
             } catch { }
             return null;
         },
+        checkAccess: async (_, { account }: { account: string }, { loggedInUser }) => {
+            if (account === loggedInUser) {
+                return true;
+            }
+            try {
+                const user = await client.user.count({ where: { account, OR: [{ isPublic: true }, { follower: { some: { account: loggedInUser } } }] } });
+                return user > 0;
+            } catch { }
+            return false;
+        },
     },
     Mutation: {
         newAccount: async (_, { username, account: preaccount, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {

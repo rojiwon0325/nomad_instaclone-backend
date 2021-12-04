@@ -4,7 +4,7 @@ export default gql`
     type editProfile_data{
         username:   String
         avatarUrl:  String
-        bio:        String
+        bio:        [String!]
     }
     type editProfileResult{
         ok:     Boolean!
