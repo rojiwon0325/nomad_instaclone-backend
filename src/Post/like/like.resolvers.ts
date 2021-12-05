@@ -30,7 +30,7 @@ const doLike: Resolver = async (_, { id }: { id: number }, { loggedInUser: accou
 const doUnLike: Resolver = async (_, { id }: { id: number }, { loggedInUser: account }) =>
     clickLike(id, account, false);
 
-const seeLike: Resolver = async (_, { id, offset: skip }: { id: number, offset: number }, { loggedInUser: account }): Promise<User[]> => {
+const seeLike: Resolver = async (_, { id, offset: skip = 0 }: { id: number, offset: number }, { loggedInUser: account }): Promise<User[]> => {
     try {
         const like = await client.like.findMany({
             where: { postId: id },

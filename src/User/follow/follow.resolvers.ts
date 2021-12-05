@@ -16,7 +16,7 @@ const requestFollow: Resolver = async (_, { account }: { account: string }, { lo
             }
         }) ?? { following: [], followReqToOther: [] };
         if (following.length > 0 || followReqToOther.length > 0) {
-            return { ok: false, error: "Fail to send request" };
+            return { ok: true, error: "Fail to send request" };
         }
         await client.user.update({
             where, data: {
