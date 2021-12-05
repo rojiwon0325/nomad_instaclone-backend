@@ -9,13 +9,13 @@ const requestFollow: Resolver = async (_, { account }: { account: string }, { lo
             return { ok: false, error: "Can't follow myself" };
         }
         const where = { account: loggedInUser };
-        const { follower, followReqToOther } = await client.user.findUnique({
+        const { following, followReqToOther } = await client.user.findUnique({
             where, select: {
-                follower: { where: { account } },
+                following: { where: { account } },
                 followReqToOther: { where: { account } }
             }
-        }) ?? { follower: [], followReqToOther: [] };
-        if (follower.length > 0 || followReqToOther.length > 0) {
+        }) ?? { following: [], followReqToOther: [] };
+        if (following.length > 0 || followReqToOther.length > 0) {
             return { ok: false, error: "Fail to send request" };
         }
         await client.user.update({
@@ -24,7 +24,8 @@ const requestFollow: Resolver = async (_, { account }: { account: string }, { lo
             }
         });
         return { ok: true };
-    } catch {
+    } catch (e) {
+        console.log(e);
         return { ok: false, error: "Fail to follow" };
     }
 };
