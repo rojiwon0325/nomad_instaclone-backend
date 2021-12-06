@@ -39,6 +39,7 @@ interface IMap {
         username: string;
         avatarUrl: string;
         follower: { account: string }[];
+        followReqToMe: { account: string }[];
     };
 }
 interface IMapUser {
@@ -46,13 +47,15 @@ interface IMapUser {
     username: string;
     avatarUrl: string;
     follower: { account: string }[];
+    followReqToMe: { account: string }[];
 }
 
 export const mapUser = (array: IMap[] | IMapUser[], myAccount: string) => array.map((elem) => {
-    const { username, account, avatarUrl, follower } = ("user" in elem ? elem.user : elem);
+    const { username, account, avatarUrl, follower, followReqToMe } = ("user" in elem ? elem.user : elem);
     return {
         username, account, avatarUrl,
         isMe: account === myAccount,
         isFollowing: follower.length > 0,
+        isRequesting: followReqToMe.length > 0,
     }
 });
