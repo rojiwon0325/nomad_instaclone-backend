@@ -9,6 +9,9 @@ import client from "prismaClient";
 const newPost: Resolver = async (_, { photo, caption }: { photo: [FileUpload], caption: string }, { loggedInUser: account }): Promise<ResultToken> => {
     try {
         const photos = await Promise.all(photo.map(elem => uploadToS3(elem, account, `post/${account}`)));
+        if (photos.length === 0) {
+            return { ok: false, error: "한장 이상의 사진이 필요합니다." };
+        }
         const hashtags = extractTags(caption);
         await client.post.create({
             data: {
