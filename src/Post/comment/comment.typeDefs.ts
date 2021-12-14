@@ -6,7 +6,7 @@ export default gql`
     }
     type Comment{
         id: Int!
-        text: [String!]!
+        text: String!
         rootId: String
         account: String!
         createdAt: String!

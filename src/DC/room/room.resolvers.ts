@@ -50,7 +50,7 @@ const resolvers: Resolvers = {
                 if (account === "") {
                     return [];
                 }
-                return await client.chatRoom.findMany({
+                const rooms = await client.chatRoom.findMany({
                     where: { user: { some: { account } }, chat: { some: { viewer: { some: { account } } } } },
                     orderBy: { updatedAt: "asc" },
                     take: 10, skip,
@@ -60,6 +60,7 @@ const resolvers: Resolvers = {
                         chat: { where: { viewer: { some: { account } } }, take: 3, orderBy: { createdAt: "asc" } },
                     }
                 });
+                return rooms.filter(room => room.chat.length > 0);
             } catch { }
             return [];
         },

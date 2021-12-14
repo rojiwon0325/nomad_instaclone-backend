@@ -8,7 +8,7 @@ export default gql`
     }
     type Post_detail{
         comments: [Comment!]! 
-        caption:    [String!]!
+        caption:    String!
         account:    String!
         avatarUrl:  String!
         createdAt:  String!

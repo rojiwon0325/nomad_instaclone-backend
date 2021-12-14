@@ -54,7 +54,7 @@ model Post {
   photo   String[]
   public  Boolean  @default(true)
   account String
-  caption String[]
+  caption String   @default(" ")
 
   hashtag   Hashtag[]   @relation("hashtag", references: [name])
   createdAt DateTime    @default(now())
@@ -71,7 +71,7 @@ model Hashtag {
 
 model Comment {
   id        Int         @id @default(autoincrement())
-  text      String[]
+  text      String      @default(" ")
   post      Post        @relation(fields: [postId], references: [id])
   user      User        @relation(fields: [account], references: [account])
   postId    Int
@@ -84,7 +84,7 @@ model Comment {
 
 model ReComment {
   id        Int      @id @default(autoincrement())
-  text      String[]
+  text      String   @default(" ")
   post      Post     @relation(fields: [postId], references: [id])
   root      Comment  @relation(fields: [rootId], references: [id])
   user      User     @relation(fields: [account], references: [account])

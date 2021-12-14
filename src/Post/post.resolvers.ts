@@ -17,7 +17,7 @@ const newPost: Resolver = async (_, { photo, caption }: { photo: FileUpload[], c
             data: {
                 user: { connect: { account } },
                 photo: photos,
-                caption: caption.split(/\n|\r/),
+                caption,
                 hashtag: {
                     connectOrCreate: hashtags
                 }
@@ -41,7 +41,7 @@ const editPost: Resolver = async (_, { id, caption }: { id: number, caption: str
         await client.post.update({
             where: { id },
             data: {
-                caption: caption.split("\n"),
+                caption,
                 hashtag: {
                     disconnect: post.hashtag,
                     connectOrCreate: extractTags(caption)
