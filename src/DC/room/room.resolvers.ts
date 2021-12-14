@@ -4,7 +4,7 @@ import { Resolvers } from "types";
 
 const resolvers: Resolvers = {
     Query: {
-        seeRoomOne: async (_, { roomId: id, offset: skip }: { roomId: number, offset: number }, { loggedInUser: account }): Promise<Chat[]> => {
+        seeRoomOne: async (_, { roomId: id, offset: skip = 0 }: { roomId: number, offset: number }, { loggedInUser: account }): Promise<Chat[]> => {
             try {
                 if (account === "") {
                     return [];
