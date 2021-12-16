@@ -20,6 +20,7 @@ export default gql`
         isMe:           Boolean
         isFollowing:    Boolean
         isRequesting:   Boolean
+        isRequested:    Boolean
         profile:        Profile
     }
     type Query{

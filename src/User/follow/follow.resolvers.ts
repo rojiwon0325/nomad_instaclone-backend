@@ -74,7 +74,7 @@ const resolvers: Resolvers = {
     Query: {
         seeFollower: async (_, { account, offset: skip = 0 }: { account: string, offset: number }, { loggedInUser }): Promise<User[]> => {
             try {
-                const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } }, followReqToMe: { where: { account: loggedInUser }, select: { account: true } } };
+                const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } }, followReqToMe: { where: { account: loggedInUser }, select: { account: true } }, followReqToOther: { where: { account: loggedInUser }, select: { account: true } } };
                 const { follower } = await client.user.findFirst({
                     where: {
                         account,
@@ -92,7 +92,7 @@ const resolvers: Resolvers = {
         },
         seeFollowing: async (_, { account, offset: skip = 0 }: { account: string, offset: number }, { loggedInUser }): Promise<User[]> => {
             try {
-                const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } }, followReqToMe: { where: { account: loggedInUser }, select: { account: true } } };
+                const select = { username: true, account: true, avatarUrl: true, follower: { where: { account: loggedInUser }, select: { account: true } }, followReqToMe: { where: { account: loggedInUser }, select: { account: true } }, followReqToOther: { where: { account: loggedInUser }, select: { account: true } } };
                 const { following } = await client.user.findFirst({
                     where: {
                         account,

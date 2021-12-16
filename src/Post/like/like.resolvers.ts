@@ -44,6 +44,7 @@ const seeLike: Resolver = async (_, { id, offset: skip = 0 }: { id: number, offs
                         avatarUrl: true,
                         follower: { where: { account }, select: { account: true } },
                         followReqToMe: { where: { account }, select: { account: true } },
+                        followReqToOther: { where: { account }, select: { account: true } },
                     }
                 }
             }

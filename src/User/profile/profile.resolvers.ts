@@ -53,6 +53,10 @@ const resolvers: Resolvers = {
                             where: { account: loggedInUser },
                             select: { account: true },
                         },
+                        followReqToOther: {
+                            where: { account: loggedInUser },
+                            select: { account: true },
+                        },
                         _count: {
                             select: {
                                 post: true,
@@ -65,11 +69,12 @@ const resolvers: Resolvers = {
                 const [user, follower] = await Promise.all([prisma, prisma.follower({ where: { account: loggedInUser } })]);
                 if (user === null) return null;
                 else {
-                    const { account, username, avatarUrl, bio, isPublic, _count, followReqToMe } = user;
+                    const { account, username, avatarUrl, bio, isPublic, _count, followReqToMe, followReqToOther } = user;
                     const isFollowing = follower.length > 0;
                     const isRequesting = followReqToMe.length > 0;
+                    const isRequested = followReqToOther.length > 0;
                     const isMe = account === loggedInUser;
-                    return { account, username, avatarUrl, isMe, isFollowing, isRequesting, profile: { bio, isPublic, _count } };
+                    return { account, username, avatarUrl, isMe, isFollowing, isRequesting, isRequested, profile: { bio, isPublic, _count } };
                 }
             } catch { }
             return null;
