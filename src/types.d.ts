@@ -1,4 +1,3 @@
-import { GraphQLScalarType } from "graphql";
 
 export interface ResultToken {
     ok: boolean;

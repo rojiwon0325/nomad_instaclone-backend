@@ -2,8 +2,8 @@ import { gql } from "apollo-server-express";
 
 export default gql`
     type Query{
-        seeRoom(roomId:Int! offset:Int): ChatRoom
-        findOrCreateRoom(accounts:[String!]!): Int
-        seeRoomList(offset: Int): [ChatRoom!]! 
+        seeRoom(roomId:Int! cursor:Int): ChatRoom
+        findOrCreateRoom(account:String!): Int
+        seeRoomList(cursor:Int): [ChatRoom!]! 
     }
 `;
