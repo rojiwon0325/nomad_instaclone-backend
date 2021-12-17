@@ -10,7 +10,7 @@ export interface User {
     isRequested?: boolean
 
     profile?: {
-        bio: string[]
+        bio: string
         isPublic: boolean
 
         _count: {

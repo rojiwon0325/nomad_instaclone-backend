@@ -12,14 +12,14 @@ generator client {
 
 model User {
   // always private
-  email     String   @default(" ")
+  email     String  @default(" ")
   password  String
   // always public
-  account   String   @id @unique
-  bio       String[]
+  account   String  @id @unique
+  bio       String  @default(" ")
   username  String
-  isPublic  Boolean  @default(true)
-  avatarUrl String   @default(" ")
+  isPublic  Boolean @default(true)
+  avatarUrl String  @default(" ")
 
   // optional public
   post             Post[] @relation("user_post")

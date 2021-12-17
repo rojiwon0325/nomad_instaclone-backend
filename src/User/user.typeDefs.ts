@@ -8,7 +8,7 @@ export default gql`
     }
     type Profile{
         isPublic:   Boolean!
-        bio:        [String!]!
+        bio:        String!
         
         _count:     Profile_count
     }
