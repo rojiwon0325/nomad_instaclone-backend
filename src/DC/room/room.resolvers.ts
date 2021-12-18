@@ -34,7 +34,7 @@ const resolvers: Resolvers = {
                 if (id) {
                     return id;
                 } else {
-                    const { id } = await client.chatRoom.create({ data: { user: { connect: { account } } }, select: { id: true } });
+                    const { id } = await client.chatRoom.create({ data: { user: { connect: [{ account }, { account: loggedInUser }] } }, select: { id: true } });
                     return id;
                 }
             } catch { }
@@ -46,7 +46,10 @@ const resolvers: Resolvers = {
                     return [];
                 }
                 const rooms = await client.chatRoom.findMany({
-                    where: { user: { some: { account } }, chat: { some: { viewer: { some: { account } } } } },
+                    where: {
+                        user: { some: { account } },
+                        chat: { some: { viewer: { some: { account } } } }
+                    },
                     orderBy: { updatedAt: "asc" },
                     take: 10,
                     ...(cursor && { cursor: { id: cursor }, skip: 1 }),
