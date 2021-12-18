@@ -37,7 +37,6 @@ async function startServer() {
                 if (jwt === undefined) {
                     throw new Error("jwt is required");
                 }
-                console.log("pass");
                 const loggedInUser = await getAccount(jwt);
                 return { loggedInUser }
             },

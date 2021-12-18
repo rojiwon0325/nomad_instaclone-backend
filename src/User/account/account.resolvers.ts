@@ -59,12 +59,8 @@ const resolvers: Resolvers = {
         },
     },
     Mutation: {
-        newAccount: async (_, { username, account: preaccount, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {
+        newAccount: async (_, { username, account, password }: { username: string, account: string, password: string }): Promise<ResultToken> => {
             try {
-                let account = preaccount;
-                if (account.length < 5) {
-                    account = preaccount + "abcde";
-                }
                 const user = await client.user.findUnique({ where: { account } });
                 if (user) {
                     return { ok: false, error: "이미 존재하는 계정입니다." };
