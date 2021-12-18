@@ -52,11 +52,11 @@ const resolvers: Resolvers = {
             try {
                 const room = (await client.chatRoom.findUnique({ where: { id }, select: { id: true, user: { select: { account: true } } } })) ?? await findOrCreateRoom(account, receiver);
                 const chat = await client.chat.create({ data: { text, roomId: room.id, account } });
-                await client.chat.update({
+                const newChat = await client.chat.update({
                     where: { id: chat.id },
                     data: { viewer: { connect: room.user } }
                 });
-                pubsub.publish(NEW_CHAT, { roomUpdate: chat });
+                pubsub.publish(NEW_CHAT, { roomUpdate: newChat });
             } catch { }
             return { ok: false, error: "Fail to send Chat" };
         },
