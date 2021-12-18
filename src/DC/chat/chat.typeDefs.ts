@@ -6,6 +6,6 @@ export default gql`
         sendChat(text:String! roomId:Int receiver: String): ResultToken!
     }
     type Subscription{
-        roomUpdate(roomId: Int!): Chat
+        roomUpdate(roomId: Int!): Chat!
     }
 `;
