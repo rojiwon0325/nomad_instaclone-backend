@@ -41,7 +41,7 @@ async function startServer() {
                 return { loggedInUser }
             },
             async onDisconnect() {
-                console.log("disconnection");
+
             }
         },
         { server: httpServer, path: server.graphqlPath }

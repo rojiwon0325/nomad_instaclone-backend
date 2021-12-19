@@ -8,7 +8,6 @@
     "migrate": "npx prisma migrate dev",
     "build": "tsc --build tsconfig.json && tsc-alias -p tsconfig.json",
     "clean": "tsc --build --clean",
-    "prestart": "npm run build",
     "start": "node build"
   },
   "repository": {
