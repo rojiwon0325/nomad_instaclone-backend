@@ -3,8 +3,8 @@ import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
 
-const loadedTypes = loadFilesSync(`${__dirname}/**/*.typeDefs.ts`);
-const loadedResolvers = loadFilesSync(`${__dirname}/**/*.resolvers.ts`);
+const loadedTypes = loadFilesSync(`${__dirname}/**/*.typeDefs.*`);
+const loadedResolvers = loadFilesSync(`${__dirname}/**/*.resolvers.*`);
 
 const typeDefs = mergeTypeDefs(loadedTypes);
 const resolvers = mergeResolvers(loadedResolvers);
