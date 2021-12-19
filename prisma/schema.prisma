@@ -97,10 +97,10 @@ model ReComment {
 }
 
 model ChatRoom {
-  id   Int    @id @default(autoincrement())
-  user User[]
-  chat Chat[]
-
+  id        Int      @id @default(autoincrement())
+  user      User[]
+  chat      Chat[]
+  count     Int      @default(0)
   updatedAt DateTime @updatedAt
 }
 

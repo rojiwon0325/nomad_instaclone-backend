@@ -44,7 +44,15 @@ const resolvers: Resolvers = {
         sendChat: async (_, { text, roomId: id, receiver }: { text: string, roomId: number | undefined, receiver: string | undefined }, { loggedInUser: account }): Promise<ResultToken> => {
             try {
                 const room = (id ? await client.chatRoom.findUnique({ where: { id }, select: { id: true, user: { select: { account: true } } } }) : null) ?? await findOrCreateRoom(account, receiver);
-                const chat = await client.chat.create({ data: { text, roomId: room.id, account } });
+                const [chat] = await Promise.all([
+                    client.chat.create({ data: { text, roomId: room.id, account } }),
+                    client.chatRoom.update({
+                        where: { id: room.id },
+                        data: {
+                            count: { increment: 1 }
+                        }
+                    })
+                ]);
                 const newChat = await client.chat.update({
                     where: { id: chat.id },
                     data: { viewer: { connect: room.user } }
